@@ -1,15 +1,44 @@
+'''
+	This utility can convert Adobe Flash generated FXG files into SVG files
+	To ensure proper conversion of files with this script ensure the following:
+	1. Your FXG file source contain only fill types and no lines (can be achieved using convert lines to fill command in flash)
+	2. Your top-most flash element is a Graphic type and not a raw drawing (or other element)
+	3. You are using python 3.6+
+	4. You have installed lxml library using pip
+'''
+
+import sys
+
+print('\nTo ensure proper conversion of files with this script ensure the following:');
+print('1. Your FXG file source contain only fill types and no lines (can be achieved using convert lines to fill command in flash)');
+print('2. Your top-most flash element is a Graphic type and not a raw drawing (or other element)');
+print('3. You are using python 3.6+')
+print('4. You have installed lxml library using pip\n')
+
 from lxml import etree
 
-with open('example.fxg', 'rb') as f:
+inputFile = sys.argv[1]
+
+if not inputFile:
+    # user did not provide a file from terminal command, prompt him to enter now
+    inputFile = input('Enter file path: ')
+
+if not inputFile:
+    print('No file provided, Cancelling conversion')
+    sys.exit(0)
+
+if not inputFile.endswith('.fxg'):
+    inputFile = inputFile + '.fxg'
+
+with open(inputFile, 'rb') as f:
     x = etree.parse(f)
 
-root_ns = x.getroot().nsmap[None]
+root_element = x.getroot()
+root_ns = root_element.nsmap[None]
 
 svg = etree.Element(
     'svg',
-    width="8cm",
-    height="8cm",
-    viewBox="0 0 800 800",
+    viewBox="0 0 "+root_element.attrib['viewWidth']+" "+root_element.attrib['viewHeight'],
     xmlns="http://www.w3.org/2000/svg",
     version="1.1"
 )
@@ -96,4 +125,9 @@ for element in x.iter():
         parent.append(named_groups[tag])
         svg.append(root)
 
-print etree.tostring(svg)
+outputFile = inputFile[:-3] + 'svg'
+f = open(outputFile, 'wb')
+f.write(etree.tostring(svg))
+f.close()
+
+print(inputFile,'converted to',outputFile)
