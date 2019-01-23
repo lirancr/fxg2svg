@@ -136,7 +136,7 @@ for element in x.iter():
         parent.append(named_groups[tag])
         svg.append(root)
 
-output_file = inputFile[:-3] + 'svg'
+output_file = input_file[:-3] + 'svg'
 with open(output_file, 'wb') as f:
     f.write(etree.tostring(svg))
 
