@@ -17,20 +17,20 @@ print('4. You have installed lxml library using pip\n')
 
 from lxml import etree
 
-inputFile = sys.argv[1]
+input_file = sys.argv[1]
 
-if not inputFile:
+if not input_file:
     # user did not provide a file from terminal command, prompt him to enter now
-    inputFile = input('Enter file path: ')
+    input_file = input('Enter file path: ')
 
-if not inputFile:
+if not input_file:
     print('No file provided, Cancelling conversion')
     sys.exit(0)
 
-if not inputFile.endswith('.fxg'):
-    inputFile = inputFile + '.fxg'
+if not input_file.endswith('.fxg'):
+    input_file = input_file + '.fxg'
 
-with open(inputFile, 'rb') as f:
+with open(input_file, 'rb') as f:
     x = etree.parse(f)
 
 root_element = x.getroot()
@@ -53,13 +53,20 @@ def get_paths_in_element(el):
             attrs = {'d': element.attrib['data']}
             for child in element.getchildren():
                 if 'fill' in child.tag:
-                    attrs['fill'] = child.getchildren()[0].attrib['color']
+                    color_data = child.getchildren()[0]
+                    if hasattr(color_data,'color'):
+                        attrs['fill'] = color_data.attrib['color']
+                    else:
+                        attrs['fill'] = '#000000'
                 else:
                     attrs['fill'] = 'none'
 
                 if 'stroke' in child.tag:
                     stroke = child.getchildren()[0]
-                    attrs['stroke'] = stroke.attrib['color']
+                    if hasattr(stroke,'color'):
+                        attrs['stroke'] = stroke.attrib['color']
+                    else:
+                        attrs['stroke'] = '#000000'
                     if stroke.attrib.get('weight'):
                         attrs['stroke-weight'] = stroke.attrib['weight']
             root.append(etree.Element('path', **attrs))
@@ -71,6 +78,10 @@ for element in x.iter():
         key_order.append(element.attrib['name'])
 
 definition_names = named_groups.keys()
+
+if len(definition_names) is 0:
+    raise "fxg does not contain any definition tags, please ensure your top level element is a Graphic symbol"
+
 for element in x.iter():
     tag = element.tag.split('}')[-1]
     if tag in definition_names:
@@ -125,8 +136,8 @@ for element in x.iter():
         parent.append(named_groups[tag])
         svg.append(root)
 
-outputFile = inputFile[:-3] + 'svg'
-f = open(outputFile, 'wb')
+output_file = inputFile[:-3] + 'svg'
+f = open(output_file, 'wb')
 f.write(etree.tostring(svg))
 f.close()
 
