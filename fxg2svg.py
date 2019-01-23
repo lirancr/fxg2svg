@@ -137,8 +137,7 @@ for element in x.iter():
         svg.append(root)
 
 output_file = inputFile[:-3] + 'svg'
-f = open(output_file, 'wb')
-f.write(etree.tostring(svg))
-f.close()
+with open(output_file, 'wb') as f:
+    f.write(etree.tostring(svg))
 
 print(inputFile,'converted to',outputFile)
