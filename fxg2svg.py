@@ -54,18 +54,18 @@ def get_paths_in_element(el):
             for child in element.getchildren():
                 if 'fill' in child.tag:
                     color_data = child.getchildren()[0]
-                    if hasattr(color_data,'color'):
+                    try:
                         attrs['fill'] = color_data.attrib['color']
-                    else:
+                    except:
                         attrs['fill'] = '#000000'
                 else:
                     attrs['fill'] = 'none'
 
                 if 'stroke' in child.tag:
                     stroke = child.getchildren()[0]
-                    if hasattr(stroke,'color'):
+                    try:
                         attrs['stroke'] = stroke.attrib['color']
-                    else:
+                    except:
                         attrs['stroke'] = '#000000'
                     if stroke.attrib.get('weight'):
                         attrs['stroke-weight'] = stroke.attrib['weight']
