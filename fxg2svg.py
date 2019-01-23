@@ -140,4 +140,4 @@ output_file = inputFile[:-3] + 'svg'
 with open(output_file, 'wb') as f:
     f.write(etree.tostring(svg))
 
-print(inputFile,'converted to',output_file)
+print(input_file,'converted to',output_file)
